@@ -1,0 +1,13 @@
+# 빌드 산출물
+TalkShield.exe
+*.zip
+
+# 로컬 전용 파일 (저장소에 올리지 않음)
+배포가이드.md
+ChatGPT Image*.png
+preview_*.png
+TalkShield_dump_*.txt
+
+# OS
+Thumbs.db
+desktop.ini
