@@ -32,8 +32,8 @@ using Microsoft.Win32;
 [assembly: AssemblyCompany("영삼넷 (youngsam.net)")]
 [assembly: AssemblyProduct("TalkShield")]
 [assembly: AssemblyCopyright("© 2026 김영삼")]
-[assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.0.0")]
+[assembly: AssemblyVersion("1.1.1.0")]
+[assembly: AssemblyFileVersion("1.1.1.0")]
 
 namespace TalkShield
 {
@@ -365,6 +365,13 @@ namespace TalkShield
             set { using (var k = Open(true)) k.SetValue("TotalBlocked", value.ToString(), RegistryValueKind.String); }
         }
 
+        // 트레이 아이콘 숨김 상태를 저장해 재부팅/재시작 후에도 유지한다.
+        public static bool IconHidden
+        {
+            get { using (var k = Open(false)) return Convert.ToInt32(k.GetValue("IconHidden", 0)) != 0; }
+            set { using (var k = Open(true)) k.SetValue("IconHidden", value ? 1 : 0, RegistryValueKind.DWord); }
+        }
+
         public static bool Autostart
         {
             get { using (var k = Registry.CurrentUser.OpenSubKey(RunPath)) return k != null && k.GetValue(AppName) != null; }
@@ -386,7 +393,7 @@ namespace TalkShield
 
     internal sealed class TrayApp : ApplicationContext
     {
-        public const string Version        = "1.1.0";
+        public const string Version        = "1.1.1";
         public const string BlogUrl        = "https://youngsam.net";
         public const string ShowSignalName = "TalkShield_ShowIcon";
 
@@ -436,7 +443,7 @@ namespace TalkShield
             _tray = new NotifyIcon
             {
                 Icon = _enabled ? _iconOn : _iconOff,
-                Visible = true,
+                Visible = !Settings.IconHidden, // 저장된 숨김 상태를 반영
                 ContextMenuStrip = menu
             };
             _tray.DoubleClick += OnToggleEnabled;
@@ -495,7 +502,8 @@ namespace TalkShield
 
         private void OnHideIcon(object sender, EventArgs e)
         {
-            _tray.Visible = false; // 차단은 계속 동작. 아이콘 복귀는 exe 재실행.
+            Settings.IconHidden = true; // 재부팅 후에도 숨김 유지
+            _tray.Visible = false;      // 차단은 계속 동작. 아이콘 복귀는 exe 재실행.
         }
 
         private void OnInfo(object sender, EventArgs e)
@@ -527,7 +535,7 @@ namespace TalkShield
             try
             {
                 while (_showSignal.WaitOne())
-                    _ui.Post(delegate { _tray.Visible = true; }, null);
+                    _ui.Post(delegate { Settings.IconHidden = false; _tray.Visible = true; }, null);
             }
             catch { } // 종료 시 핸들 Dispose 로 빠져나온다
         }
