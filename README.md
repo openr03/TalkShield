@@ -1,120 +1,140 @@
 <div align="center">
 
-<img src="docs/icon.png" width="110" alt="TalkShield 아이콘" />
+<a href="https://youngsam.net/programs/talkshield-%ED%86%A1%EC%8B%A4%EB%93%9C"><img src="docs/v1.2/talkshield-banner.png" width="100%" alt="TalkShield (톡실드) — PC 카카오톡 광고 제거. 하단 광고도, 그 빈자리도 흔적 없이" /></a>
 
-# TalkShield (톡실드)
+<br />
 
-### PC 카카오톡 광고를 자동으로 제거하는 가볍고 빠른 프로그램
+<a href="https://youngsam.net/programs/talkshield-%ED%86%A1%EC%8B%A4%EB%93%9C"><img src="https://img.shields.io/badge/%E2%AC%87%20%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C-%EC%98%81%EC%82%BC%EB%84%B7%EC%97%90%EC%84%9C%20%EB%B0%9B%EA%B8%B0-FFD43B?style=for-the-badge&labelColor=1f2128" alt="다운로드 — 영삼넷에서 받기" /></a>
+&nbsp;
+<a href="https://youngsam.net"><img src="https://img.shields.io/badge/%E2%9C%8D%20%EA%B0%9C%EB%B0%9C%EC%9E%90%20%EB%B8%94%EB%A1%9C%EA%B7%B8-%EC%98%81%EC%82%BC%EB%84%B7-4f8cff?style=for-the-badge&labelColor=1f2128" alt="개발자 블로그 — 영삼넷" /></a>
+&nbsp;
+<a href="https://youngsam.net/programs"><img src="https://img.shields.io/badge/%F0%9F%A7%B0%20%EB%8B%A4%EB%A5%B8%20%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%98%81%EC%82%BC%EB%84%B7%20%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-8b5cf6?style=for-the-badge&labelColor=1f2128" alt="다른 프로그램 — 영삼넷 프로그램" /></a>
 
-[![Release](https://img.shields.io/github/v/release/openr03/TalkShield)](https://youngsam.net/programs/talkshield-%ED%86%A1%EC%8B%A4%EB%93%9C)
-![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078D6)
-![Size](https://img.shields.io/badge/size-~75KB-success)
-![No Install](https://img.shields.io/badge/install-%EB%B6%88%ED%95%84%EC%9A%94-brightgreen)
-![KakaoTalk Beta](https://img.shields.io/badge/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B2%A0%ED%83%80-%EC%A7%80%EC%9B%90-FFD43B)
+<br /><br />
 
-<img src="docs/v1.2/talkshield-before-after.png" width="820" alt="TalkShield 사용 전·후 — 카카오톡 베타 하단 광고와 빈자리가 사라진 모습" />
+[![Release](https://img.shields.io/github/v/release/openr03/TalkShield?label=%EC%B5%9C%EC%8B%A0%20%EB%B2%84%EC%A0%84&color=FFD43B&labelColor=2b2d36)](https://youngsam.net/programs/talkshield-%ED%86%A1%EC%8B%A4%EB%93%9C)
+![KakaoTalk Beta](https://img.shields.io/badge/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B2%A0%ED%83%80-%EC%A7%80%EC%9B%90-FFD43B?labelColor=2b2d36)
+![Dark mode](https://img.shields.io/badge/%EB%8B%A4%ED%81%AC%20%C2%B7%20%EB%9D%BC%EC%9D%B4%ED%8A%B8-%EC%A7%80%EC%9B%90-9aa0ad?labelColor=2b2d36)
+![Platform](https://img.shields.io/badge/Windows-10%20%2F%2011-0078D6?labelColor=2b2d36)
+![Size](https://img.shields.io/badge/%ED%81%AC%EA%B8%B0-~75KB-2ea44f?labelColor=2b2d36)
+[![License: MIT](https://img.shields.io/badge/license-MIT-2ea44f?labelColor=2b2d36)](LICENSE)
 
-*카카오톡 베타 — 하단 광고와 그 빈자리까지 흔적 없이 사라집니다 · 다크 / 라이트 모두 (친구 이름·상태 글자는 가림)*
+**실행해 두기만 하면, PC 카카오톡의 광고가 조용히 사라집니다.**
+광고만 지우는 게 아니라 광고가 있던 **빈자리까지** 메우고, 창을 늘리고 줄일 때도 흔적이 남지 않습니다.
 
 </div>
 
 ---
 
-## ✨ TalkShield란?
-
-PC 카카오톡을 쓸 때마다 친구목록 아래에서 깜빡이는 배너 광고, 잠금화면 광고,
-불쑥 나타나는 광고 팝업이 거슬리지 않으셨나요?
-
-**TalkShield**는 실행해두기만 하면 카카오톡의 광고를 실시간으로 찾아 제거하고,
-광고가 있던 자리까지 자연스럽게 메워주는 트레이 상주 프로그램입니다.
-
-## 🆕 v1.2 새 기능
-
-| | |
-|---|---|
-| 🧪 **카카오톡 베타 지원** | 새 PC 카카오톡(베타)의 하단 배너 광고와 빈자리, 잠금화면 광고까지 제거합니다. 기존 카카오톡도 그대로 지원 |
-| 🪟 **창 크기 조절도 깔끔하게** | 창을 늘리고 줄이거나 옮기는 동안에도 광고 자리·테두리 줄·깜빡임이 보이지 않습니다 |
-| 🌗 **다크 · 라이트 테마** | 카카오톡 다크/라이트 모두 자연스럽게, 트레이 아이콘·메뉴도 Windows 테마를 자동으로 따릅니다 |
-| 🪶 **더 가벼워짐** | 메모리(작업 집합) 약 47MB → 5~8MB, CPU 사용량 약 1/3로 줄었습니다 |
-| 🎨 **새 트레이 메뉴** | Windows 11 스타일, 현재 상태와 누적 차단 수를 한눈에 |
+## 👀 한눈에 보기
 
 <div align="center">
-<img src="docs/v1.2/talkshield-themes.png" width="820" alt="다크·라이트 테마에서 광고가 제거된 카카오톡 베타" />
+<img src="docs/v1.2/talkshield-before-after.png" width="900" alt="TalkShield 사용 전·후 — 카카오톡 베타 하단 광고와 빈자리가 사라지고, 다크·라이트 모두 자연스럽게" />
+<br />
+<sub>카카오톡 베타 · 사용 전 → 사용 후(다크 / 라이트) — 친구 이름·상태 글자는 가림</sub>
 </div>
 
-### 왜 TalkShield인가?
+## ✨ v1.2 새로워진 점
 
-| | TalkShield |
-|---|---|
-| 🪶 **초경량** | 단일 실행 파일 약 75KB. 설치도, 별도 런타임도 필요 없습니다 |
-| ⚡ **빠름** | 평소 CPU 점유율은 사실상 0%, 메모리는 수 MB 수준입니다 |
-| 🛡️ **안전** | 카카오톡의 파일·메모리를 일절 건드리지 않습니다. 화면의 광고 창만 정리합니다 |
-| 🤫 **조용함** | 시작 알림도, 귀찮은 팝업도 없습니다. 트레이에서 묵묵히 일만 합니다 |
-| 🔋 **알뜰함** | 카카오톡이 꺼져 있으면 스스로 검사 주기를 늦춰 자원을 아낍니다 |
-| 📊 **통계** | 트레이 메뉴와 아이콘 툴팁에서 누적 차단 수를 보여줍니다 |
+<table>
+<tr>
+<td width="33%" valign="top">
 
-### 제거하는 광고
+### 🧪 카카오톡 베타 지원
+새 PC 카카오톡(베타)의 **하단 배너 광고와 빈자리, 잠금화면 광고**까지 정리합니다. 기존 카카오톡도 그대로.
+
+</td>
+<td width="33%" valign="top">
+
+### 🪟 창 조절도 깔끔하게
+창을 늘리고 줄이거나 옮기는 동안에도 **광고 자리·테두리 줄·깜빡임**이 보이지 않습니다.
+
+</td>
+<td width="33%" valign="top">
+
+### 🌗 다크 · 라이트
+카카오톡 다크/라이트 모두 자연스럽게. **트레이 아이콘과 메뉴도 Windows 테마**를 따라갑니다.
+
+</td>
+</tr>
+<tr>
+<td width="33%" valign="top">
+
+### 🪶 훨씬 가벼워짐
+메모리(작업 집합) **약 47MB → 5~8MB**, CPU 사용량은 **약 1/3**로 줄었습니다.
+
+</td>
+<td width="33%" valign="top">
+
+### 🎨 새 트레이 메뉴
+Windows 11 스타일 메뉴. 현재 상태와 **누적 차단 수**를 맨 위에서 한눈에.
+
+</td>
+<td width="33%" valign="top">
+
+### 🛡️ 더 튼튼하게
+예기치 못한 오류에도 멈추지 않고, 끄거나 종료하면 **카카오톡 창을 원래대로** 되돌립니다.
+
+</td>
+</tr>
+</table>
+
+<div align="center">
+<img src="docs/v1.2/talkshield-themes.png" width="900" alt="다크·라이트 테마에서 광고가 제거된 카카오톡 베타" />
+</div>
+
+## 🧹 제거하는 광고
 
 | 광고 | 기존 카카오톡 | 카카오톡 베타 |
 |---|:---:|:---:|
 | 친구목록·채팅목록 **하단 배너 광고** (빈자리까지) | ✅ | ✅ |
 | **잠금화면 광고** | ✅ | ✅ |
-| 별도로 뜨는 **광고 팝업** (웹뷰 광고 포함) | ✅ | — (베타에는 현재 광고 팝업이 없음) |
+| 별도로 뜨는 **광고 팝업** (웹뷰 광고 포함) | ✅ | — <sub>(베타에는 현재 광고 팝업이 없음)</sub> |
 
-채팅 내용·친구목록 등 실제 콘텐츠는 일절 건드리지 않습니다.
-기존 카카오톡과 베타가 동시에 실행되어 있어도 각각 따로 처리합니다.
+채팅 내용·친구목록 같은 실제 콘텐츠는 건드리지 않습니다. 기존 카카오톡과 베타를 동시에 켜 둬도 각각 따로 처리합니다.
 
-## 🚀 다운로드 & 실행
+## 🚀 3초 시작
 
-1. **[최신 버전 다운로드 (영삼넷)](https://youngsam.net/programs/talkshield-%ED%86%A1%EC%8B%A4%EB%93%9C)** — `TalkShield-vX.X.X.zip` 을 받아 압축을 풉니다.
+1. **[영삼넷에서 다운로드](https://youngsam.net/programs/talkshield-%ED%86%A1%EC%8B%A4%EB%93%9C)** — `TalkShield-vX.X.X.zip` 을 받아 압축을 풉니다.
 2. `TalkShield.exe` 를 더블클릭합니다.
-3. 끝입니다. 카카오톡의 광고가 자동으로 사라집니다.
+3. 끝. 카카오톡 광고가 자동으로 사라집니다.
 
-설치 과정이 없으므로 삭제도 간단합니다 — 프로그램 종료 후 파일을 지우면 끝.
-이전 버전을 쓰고 계시면 새 버전이 나왔을 때 트레이 알림으로 알려드립니다.
+설치가 없어서 지우는 것도 간단합니다 — 종료하고 파일만 지우면 끝. 새 버전이 나오면 트레이 알림으로 알려 드립니다.
 
-> 💡 **트레이 아이콘이 안 보이나요?**
-> Windows 11은 새 프로그램의 트레이 아이콘을 작업표시줄 `∧`(숨겨진 아이콘) 안에 넣습니다.
-> `∧`를 눌러 말풍선 아이콘을 **시계 옆으로 드래그**하면 항상 보이게 고정됩니다.
+> 💡 **트레이 아이콘이 안 보이면** — Windows 11은 새 프로그램 아이콘을 작업 표시줄 `∧`(숨겨진 아이콘) 안에 넣습니다. `∧`를 눌러 말풍선 아이콘을 **시계 옆으로 끌어다 놓으면** 항상 보입니다.
 
 ## 🖱️ 사용법
 
 <div align="center">
-<img src="docs/v1.2/talkshield-tray.png" width="760" alt="TalkShield 트레이 메뉴와 아이콘 (다크·라이트)" />
+<img src="docs/v1.2/talkshield-tray.png" width="820" alt="TalkShield 트레이 메뉴와 아이콘 (다크·라이트)" />
 </div>
 
-트레이 아이콘 **우클릭** 메뉴:
+트레이 아이콘을 **우클릭**하면 메뉴가 나옵니다.
 
 | 메뉴 | 설명 |
 |------|------|
-| 광고 차단 | 차단 켜기/끄기 (아이콘 더블클릭으로도 전환) |
+| 광고 차단 | 차단 켜기/끄기 (아이콘 **더블클릭**으로도 전환) |
 | 시작 시 자동 실행 | Windows 시작 시 자동 실행 등록/해제 |
-| 트레이 아이콘 숨기기 | 아이콘만 감추고 차단은 계속 동작. 다시 보려면 `TalkShield.exe` 재실행 |
+| 트레이 아이콘 숨기기 | 아이콘만 감추고 차단은 계속. 다시 보려면 `TalkShield.exe` 한 번 더 실행 |
 | 정보 | 프로그램 소개 페이지 열기 |
 | 종료 | 프로그램 종료 |
 
-- 아이콘에 **빨간 차단 배지**가 있으면 켜짐, **회색 말풍선**이면 꺼짐.
-- 아이콘과 메뉴는 Windows 다크/라이트 테마를 자동으로 따릅니다.
-- 시작/종료 시 알림 없이 조용히 동작합니다. (새 버전이 나왔을 때만 알림)
-- 설정과 누적 차단 수는 자동 저장되어 다음 실행에도 유지됩니다.
+- 아이콘에 **빨간 차단 배지**가 있으면 켜짐, **회색 말풍선**이면 꺼짐입니다.
+- 시작·종료 알림 없이 조용히 동작하고, 설정과 누적 차단 수는 자동으로 저장됩니다.
 
-## 🛠️ 소스에서 직접 빌드
+## 🔒 안전한가요?
 
-전체 소스(`TalkShield.cs` 한 파일)가 MIT 라이선스로 공개되어 있습니다.
-Windows에 기본 내장된 .NET Framework 컴파일러만 사용하므로 **아무것도 설치할 필요가 없습니다.**
+| | |
+|---|---|
+| 🧩 **인젝션 없음** | 카카오톡 프로그램 파일·메모리를 고치거나 끼어들지 않습니다. 화면의 **광고 창만** 정리합니다 |
+| 📖 **전체 소스 공개** | 동작 방식은 이 저장소의 소스(`TalkShield.cs` 한 파일)로 누구나 확인할 수 있습니다 (MIT) |
+| 🔌 **네트워크 최소** | 새 버전 확인(GitHub 최신 릴리스 조회) 외에는 통신하지 않습니다 |
+| ↩️ **언제든 원래대로** | 차단을 끄거나 종료하면 카카오톡 창을 처음 모습으로 되돌립니다 |
 
-```bat
-git clone https://github.com/openr03/TalkShield.git
-cd TalkShield
-build.bat
-```
+<details>
+<summary><b>⚙️ 동작 원리 (기술 설명)</b></summary>
 
-`build.bat` 이 내장 컴파일러(`csc.exe`)로 `TalkShield.exe` 를 만듭니다.
-
-## ⚙️ 동작 원리
-
-TalkShield는 카카오톡의 **창 구조만** 살펴 광고 창을 정리합니다.
-카카오톡 프로그램 파일을 고치거나 메모리에 개입(인젝션)하지 않습니다.
+<br />
 
 **기존 카카오톡 (`KakaoTalk.exe`)**
 
@@ -134,36 +154,71 @@ TalkShield는 카카오톡의 **창 구조만** 살펴 광고 창을 정리합�
    그만큼(7px) 밀리는 내용은 창 위치를 보정해 제자리에 둡니다. 최대화 중에는 원래 스타일로 둡니다.
 4. 잘려서 사라진 좌·우·하단·상단 크기 조절 테두리는 보이지 않는 손잡이 창으로 되살립니다.
 
-공통으로, 차단을 끄거나 종료하면 카카오톡 창을 원래 모습으로 되돌리며,
-창 이벤트로 즉시 반응하고 불필요한 검사·메모리 할당을 없애 장시간 켜둬도 가볍습니다.
+공통으로, 창 이벤트(WinEvent)로 즉시 반응하고 불필요한 검사·메모리 할당을 없애 장시간 켜 둬도 가볍습니다.
+
+</details>
+
+<details>
+<summary><b>🛠️ 소스에서 직접 빌드</b></summary>
+
+<br />
+
+Windows에 기본 내장된 .NET Framework 컴파일러만 사용하므로 **아무것도 설치할 필요가 없습니다.**
+
+```bat
+git clone https://github.com/openr03/TalkShield.git
+cd TalkShield
+build.bat
+```
+
+`build.bat` 이 내장 컴파일러(`csc.exe`)로 `TalkShield.exe` 를 만듭니다.
+
+</details>
 
 ## ❓ 자주 묻는 질문
 
-**Q. 백신이나 SmartScreen이 경고해요.**
-A. 코드 서명이 없는 개인 개발 무료 프로그램이라 나타나는 일반적인 경고입니다.
-`추가 정보` → `실행`을 누르면 실행됩니다. 소스 코드가 전부 공개되어 있으니 직접 빌드해서 사용하셔도 됩니다.
+<details>
+<summary><b>백신이나 SmartScreen이 경고해요.</b></summary>
 
-**Q. 카카오톡 업데이트 후 광고가 다시 보여요.**
-A. 카카오톡의 창 구조가 바뀐 경우입니다. [이슈](../../issues)로 알려주시면 빠르게 반영하겠습니다.
+코드 서명이 없는 개인 개발 무료 프로그램이라 나타나는 일반적인 경고입니다. `추가 정보` → `실행`을 누르면 실행됩니다.
+소스가 전부 공개되어 있으니 직접 빌드해서 쓰셔도 됩니다.
+</details>
 
-**Q. 계정 제재 위험은 없나요?**
-A. TalkShield는 카카오톡 프로그램·서버·메모리에 일절 개입하지 않고
-내 PC 화면의 창만 정리하므로 일반적인 창 관리 프로그램과 동일하게 동작합니다.
+<details>
+<summary><b>카카오톡 업데이트 후 광고가 다시 보여요.</b></summary>
+
+카카오톡의 창 구조가 바뀐 경우입니다. [Issues](../../issues)나 이메일(info@youngsam.net)로 알려 주시면 빠르게 반영하겠습니다.
+</details>
+
+<details>
+<summary><b>계정 제재 위험은 없나요?</b></summary>
+
+TalkShield는 카카오톡 프로그램·서버·메모리에 개입하지 않고 내 PC 화면의 창만 정리하므로, 일반적인 창 관리 프로그램과 같은 방식으로 동작합니다.
 다만 사용에 따른 책임은 사용자에게 있습니다.
+</details>
 
-## 👤 개발자
+<details>
+<summary><b>컴퓨터가 느려지지 않나요?</b></summary>
 
-| | |
-|---|---|
-| **개발** | 김영삼 |
-| **블로그** | 영삼넷 — <https://youngsam.net> |
-| **프로그램 소개** | <https://youngsam.net/programs/talkshield-%ED%86%A1%EC%8B%A4%EB%93%9C> |
-| **이메일** | <info@youngsam.net> |
+메모리(작업 집합) 5~8MB 정도, 평소 CPU 사용량은 사실상 0%입니다. 카카오톡이 꺼져 있으면 검사 주기를 스스로 늦춥니다.
+</details>
 
-버그 제보·기능 제안은 [Issues](../../issues) 또는 이메일로 보내주세요.
+---
 
-## 📄 라이선스
+<div align="center">
 
-[MIT License](LICENSE) © 2026 김영삼
+<a href="https://youngsam.net"><img src="docs/v1.2/talkshield-logo.png" width="72" alt="TalkShield" /></a>
 
-자유롭게 사용·수정·재배포할 수 있습니다.
+### 만든 사람 — 김영삼 · [영삼넷](https://youngsam.net)
+
+개발자 블로그 **[영삼넷 youngsam.net](https://youngsam.net)** 에서 TalkShield 소식과 다른 프로그램을 만나 보세요.
+
+<a href="https://youngsam.net"><img src="https://img.shields.io/badge/%EA%B0%9C%EB%B0%9C%EC%9E%90%20%EB%B8%94%EB%A1%9C%EA%B7%B8-youngsam.net-4f8cff?style=flat-square&labelColor=1f2128" alt="개발자 블로그" /></a>
+<a href="https://youngsam.net/programs/talkshield-%ED%86%A1%EC%8B%A4%EB%93%9C"><img src="https://img.shields.io/badge/TalkShield-%EC%86%8C%EA%B0%9C%20%ED%8E%98%EC%9D%B4%EC%A7%80-FFD43B?style=flat-square&labelColor=1f2128" alt="TalkShield 소개 페이지" /></a>
+<a href="mailto:info@youngsam.net"><img src="https://img.shields.io/badge/%EC%9D%B4%EB%A9%94%EC%9D%BC-info%40youngsam.net-9aa0ad?style=flat-square&labelColor=1f2128" alt="이메일" /></a>
+
+버그 제보·기능 제안은 [Issues](../../issues) 또는 이메일로 보내 주세요. 도움이 되셨다면 ⭐ 하나 눌러 주시면 큰 힘이 됩니다.
+
+<sub>[MIT License](LICENSE) © 2026 김영삼 · 카카오톡(KakaoTalk)은 (주)카카오의 상표이며, TalkShield는 카카오와 관련 없는 개인 개발 프로그램입니다.</sub>
+
+</div>
