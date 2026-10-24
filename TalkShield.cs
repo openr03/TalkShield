@@ -2675,6 +2675,7 @@ namespace TalkShield
         private readonly EventWaitHandle _showSignal;
         private readonly SynchronizationContext _ui;
 
+        private const int MenuRowHeight  = 32;        // 메뉴 한 줄 높이 (Windows 11 메뉴와 비슷하게)
         private const int FirstTrimMs    = 10 * 1000;
         private const int TrimIntervalMs = 5 * 60 * 1000;
 
@@ -2723,7 +2724,12 @@ namespace TalkShield
             _menu.Items.Add(new ToolStripMenuItem("정보", null, OnInfo));
             _menu.Items.Add(new ToolStripMenuItem("종료", null, OnExit));
             foreach (ToolStripItem item in _menu.Items)
-                if (item is ToolStripMenuItem) item.Padding = new Padding(4, 3, 18, 3);
+            {
+                if (!(item is ToolStripMenuItem) || item == _miHeader) continue;
+                item.Padding = new Padding(4, 0, 18, 0);
+                item.AutoSize = false; // 기본 높이는 Windows 11 메뉴보다 훨씬 커서 직접 맞춘다
+                item.Size = new Size(200, MenuRowHeight);
+            }
             _menu.Opening += delegate { ApplyTheme(); UpdateHeader(); };
             _menu.HandleCreated += delegate { Native.SetDwm(_menu.Handle, Native.DWMWA_WINDOW_CORNER_PREFERENCE, 2); }; // Windows 11 둥근 모서리
             UpdateHeader();
