@@ -11,8 +11,6 @@ if not exist "on.ico" powershell -NoProfile -File "make_icons.ps1"
 echo [*] 컴파일 중...
 "%CSC%" /nologo /target:winexe /platform:x64 /optimize+ /out:TalkShield.exe ^
   /win32icon:on.ico ^
-  /resource:on.ico ^
-  /resource:off.ico ^
   /reference:System.dll ^
   /reference:System.Drawing.dll ^
   /reference:System.Windows.Forms.dll ^
