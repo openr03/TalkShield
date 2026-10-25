@@ -36,8 +36,8 @@ using Microsoft.Win32;
 [assembly: AssemblyCompany("영삼넷 (youngsam.net)")]
 [assembly: AssemblyProduct("TalkShield")]
 [assembly: AssemblyCopyright("© 2026 김영삼")]
-[assembly: AssemblyVersion("1.2.0.0")]
-[assembly: AssemblyFileVersion("1.2.0.0")]
+[assembly: AssemblyVersion("1.2.1.0")]
+[assembly: AssemblyFileVersion("1.2.1.0")]
 
 namespace TalkShield
 {
@@ -917,7 +917,9 @@ namespace TalkShield
         // 카카오톡이 광고 창을 새로 띄우거나 숨기면(탭 전환 등) 정기 점검을 기다리지 않고 바로 처리한다.
         private void OnShow(IntPtr hook, uint ev, IntPtr h, int idObject, int idChild, uint thread, uint time)
         {
-            if (_busy || idObject != Native.OBJID_WINDOW || Native.GetWindow(h, Native.GW_OWNER) == IntPtr.Zero) return;
+            if (_busy || idObject != Native.OBJID_WINDOW) return;
+            // 소유 창(광고 등)이거나, 잘라 둔 메인 창이 트레이에서 다시 열릴 때(손잡이를 바로 되살린다)
+            if (Native.GetWindow(h, Native.GW_OWNER) == IntPtr.Zero && !_clipped.ContainsKey(h)) return;
             try { RunPass(); } catch { }
         }
 
@@ -1164,9 +1166,16 @@ namespace TalkShield
                 {
                     if (_wanted.ContainsKey(h)) continue;
                     int seen;
+                    if (Native.IsWindow(h) && !Native.IsWindowVisible(h))
+                    {
+                        // 창을 닫아 트레이로 숨긴 동안에는 잘라 둔 상태를 그대로 둔다. 원복해 두면 다시 열 때
+                        // 광고 자리가 잠깐 보인 뒤에 잘린다. 바깥 손잡이·덮개만 숨기고, 다시 보이면 바로 이어서 처리한다.
+                        HideExtras(h);
+                        _lastWanted[h] = now; // 다시 보인 직후 광고 창이 늦게 나타나도 원복하지 않도록
+                        continue;
+                    }
                     // 광고 창이 교체되는 짧은 순간에는 원복하지 않아 깜빡임을 막는다.
-                    if (Native.IsWindow(h) && Native.IsWindowVisible(h) &&
-                        _lastWanted.TryGetValue(h, out seen) && now - seen < UnclipGraceMs) continue;
+                    if (Native.IsWindow(h) && _lastWanted.TryGetValue(h, out seen) && now - seen < UnclipGraceMs) continue;
                     stale.Add(h);
                 }
                 foreach (var h in stale)
@@ -1652,6 +1661,16 @@ namespace TalkShield
         private static bool Close(Color a, Color b)
         {
             return Math.Abs(a.R - b.R) <= 3 && Math.Abs(a.G - b.G) <= 3 && Math.Abs(a.B - b.B) <= 3;
+        }
+
+        private void HideExtras(IntPtr main)
+        {
+            ResizeGrip grip;
+            EdgeGrip topGrip;
+            BottomCover cover;
+            if (_grips.TryGetValue(main, out grip)) grip.Hide();
+            if (_topGrips.TryGetValue(main, out topGrip)) topGrip.Hide();
+            if (_covers.TryGetValue(main, out cover)) cover.Hide();
         }
 
         private void DestroyCover(IntPtr main)
@@ -2656,7 +2675,7 @@ namespace TalkShield
 
     internal sealed class TrayApp : ApplicationContext
     {
-        public const string Version        = "1.2.0";
+        public const string Version        = "1.2.1";
         public const string InfoUrl        = "https://youngsam.net/programs";
         public const string ShowSignalName = "TalkShield_ShowIcon";
 
