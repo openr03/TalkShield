@@ -36,8 +36,8 @@ using Microsoft.Win32;
 [assembly: AssemblyCompany("영삼넷 (youngsam.net)")]
 [assembly: AssemblyProduct("TalkShield")]
 [assembly: AssemblyCopyright("© 2026 김영삼")]
-[assembly: AssemblyVersion("1.2.2.0")]
-[assembly: AssemblyFileVersion("1.2.2.0")]
+[assembly: AssemblyVersion("1.2.3.0")]
+[assembly: AssemblyFileVersion("1.2.3.0")]
 
 namespace TalkShield
 {
@@ -1064,7 +1064,7 @@ namespace TalkShield
             if (_pendingAds.TryGetValue(h, out since))
             {
                 // 잠정 처리한 창: 광고 웹뷰가 확인되면 확정, 끝내 확인되지 않으면 원래대로 되돌린다.
-                if (HasAdWebView(h))
+                if (IsAdBanner(h, owner))
                 {
                     _pendingAds.Remove(h);
                     _adOwners.Add(owner);
@@ -1087,13 +1087,13 @@ namespace TalkShield
                 // 나중에 광고 웹뷰가 확인되면 차단한다.
                 if (_notAds.Contains(h))
                 {
-                    if (!HasAdWebView(h)) return;
+                    if (!IsAdBanner(h, owner)) return;
                     _notAds.Remove(h);
                 }
                 // 처음 보는 메인 창이면 WebView2 의 광고 제목으로 확인. 이후 재생성된 광고 창은 모양만으로 판별.
                 // 로그인 직후에는 광고 창이 먼저 뜨고 웹뷰가 조금 늦게 생기므로, 메인 창 맨 아래에 붙은 배너 모양이면
                 // 일단 바로 감춰 두고(잠정) 확인을 기다린다. 확인되지 않으면 PendingAdMs 뒤 원래대로 되돌린다.
-                bool confirmed = _adOwners.Contains(owner) || HasAdWebView(h);
+                bool confirmed = _adOwners.Contains(owner) || IsAdBanner(h, owner);
                 if (!confirmed && !AtOwnerBottom(h, owner)) return;
 
                 // 원래 스타일 저장. 이전 실행이 비정상 종료돼 남긴 투명 비트는 빼고 저장한다.
@@ -1159,17 +1159,31 @@ namespace TalkShield
             return Math.Abs(ad.Bottom - (win.Bottom - f)) <= 2 && Math.Abs(ad.Left - (win.Left + f)) <= 2;
         }
 
-        private bool HasAdWebView(IntPtr h)
+        // 배너 안의 WebView2: 0 = 없음, 1 = 있지만 제목으로는 광고인지 모름, 2 = 광고 제목.
+        // 제목은 광고 페이지가 정하므로 PC·언어·광고 상품에 따라 "MOMENT 광고" 가 아닐 수 있다.
+        private int AdWebView(IntPtr h)
         {
             _children.Clear();
             Native.EnumChildWindows(h, _collectChild, IntPtr.Zero);
+            int found = 0;
             for (int i = 0; i < _children.Count; i++)
             {
                 IntPtr c = _children[i];
-                if (Native.ClassName(c) == "Chrome_WidgetWin_1" && Native.WindowText(c).IndexOf("광고", StringComparison.Ordinal) >= 0)
-                    return true;
+                if (Native.ClassName(c) != "Chrome_WidgetWin_1") continue;
+                string t = Native.WindowText(c);
+                if (t.IndexOf("광고", StringComparison.Ordinal) >= 0 || t.IndexOf("MOMENT", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    t.IndexOf("広告", StringComparison.Ordinal) >= 0 || t.IndexOf("广告", StringComparison.Ordinal) >= 0)
+                    return 2;
+                found = 1;
             }
-            return false;
+            return found;
+        }
+
+        // 메인 창 맨 아래에 붙은 배너 모양 창에 웹뷰가 들어 있으면 제목과 관계없이 광고로 본다.
+        private bool IsAdBanner(IntPtr h, IntPtr owner)
+        {
+            int wv = AdWebView(h);
+            return wv == 2 || (wv == 1 && AtOwnerBottom(h, owner));
         }
 
         // 원하는 상태(_wanted)와 실제 상태를 맞춘다.
@@ -2804,7 +2818,7 @@ namespace TalkShield
 
     internal sealed class TrayApp : ApplicationContext
     {
-        public const string Version        = "1.2.2";
+        public const string Version        = "1.2.3";
         public const string InfoUrl        = "https://youngsam.net/programs";
         public const string ShowSignalName = "TalkShield_ShowIcon";
 
