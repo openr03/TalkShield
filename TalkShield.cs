@@ -36,8 +36,8 @@ using Microsoft.Win32;
 [assembly: AssemblyCompany("영삼넷 (youngsam.net)")]
 [assembly: AssemblyProduct("TalkShield")]
 [assembly: AssemblyCopyright("© 2026 김영삼")]
-[assembly: AssemblyVersion("1.2.1.0")]
-[assembly: AssemblyFileVersion("1.2.1.0")]
+[assembly: AssemblyVersion("1.2.2.0")]
+[assembly: AssemblyFileVersion("1.2.2.0")]
 
 namespace TalkShield
 {
@@ -61,6 +61,14 @@ namespace TalkShield
         [DllImport("user32.dll")]                            public static extern bool   IsWindow(IntPtr h);
         [DllImport("user32.dll")]                            public static extern bool   IsWindowVisible(IntPtr h);
         [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr SendMessage(IntPtr h, uint msg, IntPtr w, IntPtr l);
+        [DllImport("user32.dll")]                            public static extern IntPtr SendMessageTimeout(IntPtr h, uint msg, IntPtr w, IntPtr l, uint flags, uint timeout, out IntPtr result);
+
+        // 창이 바로 응답할 수 있는 상태인지 (메시지 처리가 밀려 있지 않은지)
+        public static bool IsResponsive(IntPtr h, uint timeoutMs)
+        {
+            IntPtr r;
+            return SendMessageTimeout(h, 0 /* WM_NULL */, IntPtr.Zero, IntPtr.Zero, 0x0002 /* SMTO_ABORTIFHUNG */, timeoutMs, out r) != IntPtr.Zero;
+        }
         [DllImport("user32.dll")]                            public static extern bool   GetCursorInfo(ref CURSORINFO ci);
         [DllImport("user32.dll")]                            public static extern IntPtr GetWindow(IntPtr h, uint cmd);
         [DllImport("user32.dll")]                            public static extern int    SetWindowRgn(IntPtr h, IntPtr rgn, bool redraw);
@@ -779,10 +787,11 @@ namespace TalkShield
         private const int    AppTopResizeZone  = 7;   // 카카오톡 자체 상단 크기 조절 범위(px, 96dpi 기준, 실측: 0~6px 크기 조절, 7px~ 이동)
         private const int    CoverOverlap      = 3;   // 크기 조절 중 덮개를 위로 겹치는 높이(px, 96dpi 기준)
         private const int    CutHistoryMs      = 250; // 덮개 윗변을 정할 때 돌아볼 시간
-        private const int    PendingAdMs       = 3000; // 잠정 감춘 배너가 광고로 확인되기를 기다리는 시간
+        private const int    PendingAdMs       = 10000; // 잠정 감춘 배너가 광고로 확인되기를 기다리는 시간 (부팅 직후엔 웹뷰가 늦게 생김)
         private const int    RegionLagMs       = 120; // 덮개 없이 크기 조절할 때 자를 위치를 정하며 돌아볼 시간 (카카오톡이 늦게 그리는 만큼)
         private const int    ColorRefreshMs    = 5000;  // 덮개 색을 다시 뽑는 주기 (테마 변경 대응)
         private const int    SidebarWidth      = 68;   // 색을 뽑기 전 기본 사이드바 폭(px, 96dpi 기준)
+        private const int    SettleMaxMs       = 3000; // 처음 잘라낸 영역이 적용되기를 기다리며 덮개를 유지하는 최대 시간
 
         private readonly HashSet<uint>   _pids       = new HashSet<uint>();
         private readonly HashSet<uint>   _foundPids  = new HashSet<uint>();
@@ -811,6 +820,8 @@ namespace TalkShield
         private readonly Dictionary<IntPtr, List<CutSample>> _recentCuts = new Dictionary<IntPtr, List<CutSample>>(); // 메인 창 → 최근 자를 위치
         private readonly HashSet<IntPtr>                 _lagged     = new HashSet<IntPtr>();              // 최근 경계 때문에 덜 보이게 잘라 둔 메인 창
         private readonly HashSet<IntPtr>                 _appSizing  = new HashSet<IntPtr>();              // 카카오톡 자체 테두리로 크기 조절 중
+        private readonly Dictionary<IntPtr, int>         _settling   = new Dictionary<IntPtr, int>();      // 잘라낸 영역이 적용되기를 기다리는 메인 창 → 시작 시각 (그동안 덮개)
+        private readonly Dictionary<IntPtr, int>         _clipStart  = new Dictionary<IntPtr, int>();      // DWM 테두리 그리기를 아직 끄지 않은 메인 창 → 처음 자른 시각
         private readonly Dictionary<IntPtr, int>         _appSizedAt = new Dictionary<IntPtr, int>();      // 카카오톡 자체 크기 조절이 끝난 시각
         private readonly Dictionary<IntPtr, List<CutSample>> _cutHistory = new Dictionary<IntPtr, List<CutSample>>(); // 메인 창 → 최근 경계
         private readonly Dictionary<IntPtr, CoverColors> _colors     = new Dictionary<IntPtr, CoverColors>();  // 메인 창 → 덮개 색
@@ -1071,7 +1082,14 @@ namespace TalkShield
             }
             else if (!_adWindows.ContainsKey(h))
             {
-                if (_notAds.Contains(h) || !LooksLikeBanner(h, owner)) return;
+                if (!LooksLikeBanner(h, owner)) return;
+                // 컴퓨터를 켠 직후처럼 느릴 때는 웹뷰가 PendingAdMs 보다 늦게 생길 수 있다. 한 번 아니라고 본 창도
+                // 나중에 광고 웹뷰가 확인되면 차단한다.
+                if (_notAds.Contains(h))
+                {
+                    if (!HasAdWebView(h)) return;
+                    _notAds.Remove(h);
+                }
                 // 처음 보는 메인 창이면 WebView2 의 광고 제목으로 확인. 이후 재생성된 광고 창은 모양만으로 판별.
                 // 로그인 직후에는 광고 창이 먼저 뜨고 웹뷰가 조금 늦게 생기므로, 메인 창 맨 아래에 붙은 배너 모양이면
                 // 일단 바로 감춰 두고(잠정) 확인을 기다린다. 확인되지 않으면 PendingAdMs 뒤 원래대로 되돌린다.
@@ -1186,7 +1204,7 @@ namespace TalkShield
                         DestroyGrip(h); DestroyCover(h);
                         _adHeight.Remove(h); _lastSize.Remove(h); _sizedAt.Remove(h); _resizing.Remove(h); _cutHistory.Remove(h);
                         _frameShift.Remove(h); _placementShift.Remove(h); _clientTop.Remove(h); _recentCuts.Remove(h); _lagged.Remove(h);
-                        _appSizing.Remove(h); _appSizedAt.Remove(h);
+                        _appSizing.Remove(h); _appSizedAt.Remove(h); _settling.Remove(h); _clipStart.Remove(h);
                     }
                     _clipped.Remove(h);
                     _lastWanted.Remove(h);
@@ -1232,7 +1250,9 @@ namespace TalkShield
         {
             // 창 사각형 = 보이는 내용 + 좌·우·하단의 보이지 않는 크기 조절 테두리. 상단은 내용이 끝까지 차 있다.
             // (DWM 프레임 경계값은 1px 테두리를 포함하고, DWM 을 끈 뒤에는 값 자체가 달라지므로 쓰지 않는다.)
-            UpdateFrameStyle(main, ref win);
+            // 처음 자를 때는 테두리 스타일을 바꾸기 전에 먼저 잘라 둔다. 스타일 변경은 카카오톡의 응답을 여러 번 기다리므로,
+            // 막 실행돼 바쁜 카카오톡에서는 0.5초 넘게 걸려 그동안 광고 자리와 테두리가 보인다. 스타일은 다음 점검에서 바꾼다.
+            if (_clipped.ContainsKey(main)) UpdateFrameStyle(main, ref win, adHeight);
 
             int f      = FrameThickness(main);
             int w      = win.Right - win.Left;
@@ -1255,23 +1275,41 @@ namespace TalkShield
             if (_frameShift.ContainsKey(main)) bottom = Math.Min(bottom, RecentCut(main, bottom));
             if (bottom - top < adHeight || right - left < 100) return; // 비정상적인 값이면 건드리지 않는다
 
-            _adHeight[main] = adHeight;
-            UpdateGrip(main, win, f, top, bottom);
-            UpdateCover(main, win, f, bottom);
+            int now = Environment.TickCount;
+            bool first = !_clipped.ContainsKey(main);
+            if (first)
+            {
+                _settling[main] = now;  // 막 실행된 카카오톡은 바빠서 잘라내기가 늦게 적용된다 → 그동안 광고 자리를 덮개로 가린다
+                _clipStart[main] = now;
+            }
 
             int key = (right << 16) ^ (bottom << 4) ^ top;
             int cur;
             bool same = _clipped.TryGetValue(main, out cur) && cur == key;
             Native.RECT box;
-            if (same && Native.GetWindowRgnBox(main, out box) > Native.NULLREGION &&
-                Math.Abs(box.Right - right) <= 1 && Math.Abs(box.Bottom - bottom) <= 1 && Math.Abs(box.Top - top) <= 1) return;
+            bool applied = same && Native.GetWindowRgnBox(main, out box) > Native.NULLREGION &&
+                           Math.Abs(box.Right - right) <= 1 && Math.Abs(box.Bottom - bottom) <= 1 && Math.Abs(box.Top - top) <= 1;
+            // 잘라내기가 실제로 적용됐으면 덮개를 내린다 (그 뒤로 덮개가 남으면 잘린 자리까지 창이 늘어나 보인다)
+            int settleStart;
+            if (_settling.TryGetValue(main, out settleStart) && (applied || now - settleStart > SettleMaxMs))
+                _settling.Remove(main);
 
-            if (!_clipped.ContainsKey(main))
+            // DWM 테두리 그리기는 잘라 두고 테두리 스타일까지 바꾼 뒤에 끈다. 먼저 끄면 잘라내기가 늦게 적용되거나
+            // 스타일 변경으로 영역이 잠깐 풀리는 동안 크기 조절 테두리가 하늘색 띠로 보인다.
+            int clipStart;
+            if (applied && _clipStart.TryGetValue(main, out clipStart) &&
+                (_frameShift.ContainsKey(main) || Native.IsZoomed(main) || now - clipStart > SettleMaxMs))
             {
+                _clipStart.Remove(main);
                 Native.SetDwm(main, Native.DWMWA_NCRENDERING_POLICY, 1);
                 Native.SetDwm(main, Native.DWMWA_BORDER_COLOR, -2);
                 Native.SetDwm(main, Native.DWMWA_WINDOW_CORNER_PREFERENCE, 1);
             }
+
+            _adHeight[main] = adHeight;
+            UpdateGrip(main, win, f, top, bottom);
+            UpdateCover(main, win, f, bottom);
+            if (applied) return;
 
             IntPtr rgn;
             if (Native.IsZoomed(main))
@@ -1285,6 +1323,7 @@ namespace TalkShield
             }
             Native.SetRegion(main, rgn);
             _clipped[main] = key;
+            if (first) ClipMain(main, adHeight); // 이어서 테두리 스타일을 맞춘다
         }
 
         // ----- 창 테두리 스타일(WS_DLGFRAME) -----
@@ -1295,7 +1334,7 @@ namespace TalkShield
         // 내용이 화면의 같은 자리·같은 크기에 있게 한다. (카카오톡은 테두리를 뺀 내용 영역 기준으로 위치를 저장하므로
         // 이 상태로 종료돼도 다음 실행 위치가 밀리지 않는다 — 실측 확인)
         // 최대화 중에는 스타일이 없으면 작업 표시줄까지 덮으므로 원래 스타일로 둔다.
-        private void UpdateFrameStyle(IntPtr main, ref Native.RECT win)
+        private void UpdateFrameStyle(IntPtr main, ref Native.RECT win, int adHeight)
         {
             if (Native.IsZoomed(main))
             {
@@ -1308,18 +1347,23 @@ namespace TalkShield
             }
             if (Native.IsIconic(main) || _frameShift.ContainsKey(main)) return;
 
+            // 막 실행된 카카오톡은 한동안 바빠서 스타일 변경이 0.4초씩 막히고, 그동안 잘라 둔 영역이 풀려 광고 자리와 테두리가 보인다.
+            // 바로 응답하지 못하면 다음 점검으로 미룬다. (그동안은 잘라 둔 영역만으로 충분하다)
+            if (!Native.IsResponsive(main, 20)) return;
+
             // 최대화 전에 보정해 둔 '보통 크기' 위치로 돌아온 경우는 이미 보정돼 있으므로 스타일만 뺀다.
             bool compensated = _placementShift.Remove(main);
-            StripFrame(main, !compensated);
+            StripFrame(main, !compensated, adHeight);
             Native.GetWindowRect(main, out win);
         }
 
-        private void StripFrame(IntPtr main, bool compensate)
+        private void StripFrame(IntPtr main, bool compensate, int adHeight)
         {
             int style = Native.GetWindowLong(main, Native.GWL_STYLE);
             int shift;
             if ((style & Native.WS_DLGFRAME) != 0)
             {
+                CoverWhileReset(main, adHeight); // 스타일을 바꾸는 동안 영역이 잠깐 풀린다
                 int before = ClientTop(main);
                 SetStyle(main, style & ~Native.WS_DLGFRAME);
                 shift = ClientTop(main) - before;
@@ -1339,8 +1383,38 @@ namespace TalkShield
                 return;
             }
             _frameShift[main] = shift;
-            if (compensate) MoveTopEdge(main, -shift);
             _clientTop[main] = ClientTop(main); // 위쪽 테두리 띠 전체(마지막 1px 줄 포함)를 가리고 내용부터 보인다
+            if (compensate)
+            {
+                PresetRegion(main, shift, adHeight);
+                MoveTopEdge(main, -shift);
+            }
+        }
+
+        // 영역이 잠깐 풀리는 작업 직전에 광고 자리를 덮개로 가린다. 다시 잘라 두면 ClipMain 이 덮개를 내린다.
+        private void CoverWhileReset(IntPtr main, int adHeight)
+        {
+            Native.RECT win;
+            if (!Native.GetWindowRect(main, out win)) return;
+            int f = FrameThickness(main);
+            _settling[main] = Environment.TickCount;
+            UpdateCover(main, win, f, (win.Bottom - win.Top) - f - adHeight);
+        }
+
+        // 창을 위로 늘리기 전에, 늘린 뒤에 맞는 영역을 미리 잘라 둔다. 늘린 직후의 카카오톡은 다시 그리느라 바빠
+        // 영역 변경이 0.3초 넘게 막히고, 그동안 위쪽 테두리 띠가 보인다. (영역은 창 기준 좌표라 위로 늘려도 내용과 함께 유지된다)
+        private void PresetRegion(IntPtr main, int shift, int adHeight)
+        {
+            Native.RECT win;
+            if (!Native.GetWindowRect(main, out win)) return;
+            int f      = FrameThickness(main);
+            int top    = VisibleTop(main);
+            int right  = win.Right - win.Left - f;
+            int bottom = (win.Bottom - win.Top + shift) - f - adHeight;
+            if (bottom - top < adHeight || right - f < 100) return;
+            int d = (int)Math.Round(CornerDiameter * Scale(main));
+            Native.SetRegion(main, Native.CreateRoundRectRgn(f, top, right + 1, bottom + 1, d, d));
+            _clipped[main] = (right << 16) ^ (bottom << 4) ^ top; // 늘린 뒤 ClipMain 이 같은 영역을 다시 설정하지 않도록
         }
 
         // moveBack: 보정했던 위치도 되돌린다. 최대화 중이면 '보통 크기' 위치에 보정이 남으므로 기억해 둔다.
@@ -1458,6 +1532,8 @@ namespace TalkShield
             _lagged.Remove(main);
             _appSizing.Remove(main);
             _appSizedAt.Remove(main);
+            _settling.Remove(main);
+            _clipStart.Remove(main);
             Native.SetRegion(main, IntPtr.Zero);
             Native.SetDwm(main, Native.DWMWA_NCRENDERING_POLICY, 0);
             Native.SetDwm(main, Native.DWMWA_BORDER_COLOR, -1);
@@ -1517,8 +1593,9 @@ namespace TalkShield
             bool zoomed = Native.IsZoomed(main);
             bool resetsOnSize = !_frameShift.ContainsKey(main) || _appSizing.Contains(main) ||
                                 (_appSizedAt.TryGetValue(main, out appSizedAt) && now - appSizedAt < CoverGraceMs);
+            bool settling = _settling.ContainsKey(main);
             bool need = !Native.IsIconic(main) &&
-                        (zoomed || resetsOnSize && (_resizing.Contains(main) ||
+                        (zoomed || settling || resetsOnSize && (_resizing.Contains(main) ||
                          (_sizedAt.TryGetValue(main, out sizedAt) && now - sizedAt < CoverGraceMs)));
 
             BottomCover cover;
@@ -1555,7 +1632,10 @@ namespace TalkShield
 
             // 덮개는 즉시 떠야 하므로 미리 뽑아 둔 색을 쓴다. (처음 한 번만 그 자리에서 뽑는다)
             CoverColors colors;
-            if (!_colors.TryGetValue(main, out colors)) colors = SampleColors(main, win, frame, cut, true);
+            // 처음 잘라내는 중에는 화면에서 뽑지 않고 지난번 색을 쓴다. 막 뜬 카카오톡은 아직 다 그려지지 않았고,
+            // 창 전체 캡처는 바쁜 카카오톡의 응답을 기다리느라 잘라내기를 더 늦춘다.
+            if (!_colors.TryGetValue(main, out colors))
+                colors = settling && LoadSavedColors(main, out colors) ? colors : SampleColors(main, win, frame, cut, !settling);
             cover.SetColors(colors.Left, colors.Right, colors.Split);
             cover.Show(r, zoomed ? 0 : (int)Math.Round(CornerDiameter * Scale(main)));
         }
@@ -1583,6 +1663,7 @@ namespace TalkShield
             };
             CoverColors previous;
             if (_colors.TryGetValue(main, out previous)) result = previous; // 실패 시 이전 값을 유지
+            else if (LoadSavedColors(main, out previous)) result = previous;
             result.Time = Environment.TickCount;
             _colors[main] = result;
 
@@ -1600,6 +1681,7 @@ namespace TalkShield
                             g.CopyFromScreen(win.Left, win.Top + y, 0, 0, new Size(w, 1));
                         AnalyzeRow(x => row.GetPixel(x, 0), x0, x1, frame, ref result);
                     }
+                    SaveColors(main, result);
                 }
                 else if (fullCapture)
                 {
@@ -1614,11 +1696,42 @@ namespace TalkShield
                         }
                         AnalyzeRow(x => bmp.GetPixel(x, y), x0, x1, frame, ref result);
                     }
+                    SaveColors(main, result);
                 }
                 _colors[main] = result;
             }
             catch { } // 캡처 실패 시 이전 값(또는 기본 다크 모드 색)을 쓴다
             return result;
+        }
+
+        private string _savedColors; // 레지스트리에 저장된 값 (한 번만 읽는다)
+
+        private bool LoadSavedColors(IntPtr main, out CoverColors colors)
+        {
+            colors = new CoverColors();
+            if (_savedColors == null)
+            {
+                try { _savedColors = Settings.BetaColors; } catch { _savedColors = ""; }
+            }
+            string[] p = _savedColors.Split( );
+            int left, right, split;
+            if (p.Length != 3 || !int.TryParse(p[0], out left) || !int.TryParse(p[1], out right) || !int.TryParse(p[2], out split)) return false;
+            colors.Left  = Color.FromArgb(left);
+            colors.Right = Color.FromArgb(right);
+            colors.Split = (int)Math.Round(split * Scale(main));
+            colors.Time  = Environment.TickCount;
+            return true;
+        }
+
+        // 색이 바뀌었을 때만 저장한다 (테마를 바꿀 때 정도). 사이드바 폭은 2px 이내 차이는 무시한다.
+        private void SaveColors(IntPtr main, CoverColors colors)
+        {
+            CoverColors saved;
+            if (LoadSavedColors(main, out saved) && saved.Left.ToArgb() == colors.Left.ToArgb() &&
+                saved.Right.ToArgb() == colors.Right.ToArgb() && Math.Abs(saved.Split - colors.Split) <= 2) return;
+            string value = colors.Left.ToArgb() + "," + colors.Right.ToArgb() + "," + (int)Math.Round(colors.Split / Scale(main));
+            _savedColors = value;
+            try { Settings.BetaColors = value; } catch { }
         }
 
         // 그 줄이 다른 창에 가려지지 않고 카카오톡 메인 창이 보이는지
@@ -1766,6 +1879,10 @@ namespace TalkShield
             dead.Clear();
             foreach (var h in _adOwners) if (!Native.IsWindow(h)) dead.Add(h);
             foreach (var h in dead) _adOwners.Remove(h);
+
+            dead.Clear();
+            foreach (var h in _notAds) if (!Native.IsWindow(h)) dead.Add(h);
+            foreach (var h in dead) _notAds.Remove(h);
         }
 
         private void ForgetAll()
@@ -1786,12 +1903,16 @@ namespace TalkShield
             _lagged.Clear();
             _appSizing.Clear();
             _appSizedAt.Clear();
+            _settling.Clear();
+            _clipStart.Clear();
             _cutHistory.Clear();
             _colors.Clear();
             _adHeight.Clear();
             _adOf.Clear();
             _adWindows.Clear();
             _adOwners.Clear();
+            _pendingAds.Clear();
+            _notAds.Clear();
             _clipped.Clear();
             _wanted.Clear();
             _lastWanted.Clear();
@@ -2447,6 +2568,14 @@ namespace TalkShield
             set { using (var k = Open(true)) k.SetValue("TotalBlocked", value.ToString(), RegistryValueKind.String); }
         }
 
+        // 카카오톡 베타의 마지막 배경색(덮개 색). 막 실행된 카카오톡은 아직 다 그려지지 않아 색을 뽑을 수 없으므로 이전 값을 쓴다.
+        // 형식: "사이드바 ARGB,목록 ARGB,사이드바 폭(96dpi)"
+        public static string BetaColors
+        {
+            get { using (var k = Open(false)) return Convert.ToString(k.GetValue("BetaColors", "")); }
+            set { using (var k = Open(true)) k.SetValue("BetaColors", value, RegistryValueKind.String); }
+        }
+
         // 트레이 아이콘 숨김 상태를 저장해 재부팅/재시작 후에도 유지한다.
         public static bool IconHidden
         {
@@ -2675,7 +2804,7 @@ namespace TalkShield
 
     internal sealed class TrayApp : ApplicationContext
     {
-        public const string Version        = "1.2.1";
+        public const string Version        = "1.2.2";
         public const string InfoUrl        = "https://youngsam.net/programs";
         public const string ShowSignalName = "TalkShield_ShowIcon";
 
